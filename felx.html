@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flexbox 属性速查</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+SC:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141418;
+    --surface2: #1c1c22;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e6e0;
+    --text-dim: #7a7870;
+    --text-mid: #a8a49e;
+    --accent: #7c6df7;
+    --accent2: #3dcfb2;
+    --amber: #e8a030;
+    --red: #e05050;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Noto Serif SC', serif;
+    --sans: 'Space Grotesk', sans-serif;
+    --radius: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* ---- header ---- */
+  header {
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .header-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-label::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--text);
+  }
+  h1 span {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .subtitle {
+    margin-top: 14px;
+    color: var(--text-mid);
+    font-size: 15px;
+    max-width: 480px;
+  }
+
+  /* ---- section ---- */
+  .section {
+    margin-bottom: 52px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .section:nth-child(2) { animation-delay: 0.08s; }
+  .section:nth-child(3) { animation-delay: 0.16s; }
+  .section:nth-child(4) { animation-delay: 0.24s; }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-title h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .section-title .pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .pill-container { background: rgba(124,109,247,0.15); color: var(--accent); }
+  .pill-item { background: rgba(61,207,178,0.15); color: var(--accent2); }
+  .pill-shorthand { background: rgba(232,160,48,0.15); color: var(--amber); }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ---- card grid ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card-name {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .card-name.c-accent { color: var(--accent); }
+  .card-name.c-teal   { color: var(--accent2); }
+  .card-name.c-amber  { color: var(--amber); }
+  .card-desc {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .card-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .val {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    background: var(--surface2);
+    border-radius: 4px;
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+  }
+  .val.default {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .val.highlight {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* ---- demo bars ---- */
+  .demo {
+    margin-top: 14px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 10px;
+    min-height: 52px;
+    display: flex;
+  }
+  .demo-box {
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s;
+  }
+  .demo-purple { background: rgba(124,109,247,0.35); border: 1px solid rgba(124,109,247,0.5); }
+  .demo-teal   { background: rgba(61,207,178,0.3);  border: 1px solid rgba(61,207,178,0.45); }
+  .demo-amber  { background: rgba(232,160,48,0.3);  border: 1px solid rgba(232,160,48,0.45); }
+
+  /* ---- interactive demo ---- */
+  .interactive-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 52px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  .interactive-demo h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ctrl-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .ctrl-btns {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .ctrl-btn.active { background: rgba(124,109,247,0.2); border-color: var(--accent); color: var(--accent); }
+  .live-box {
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 14px;
+    min-height: 120px;
+    display: flex;
+    gap: 8px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .live-item {
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .live-item:nth-child(1) { background: rgba(124,109,247,0.35); border: 1px solid rgba(124,109,247,0.5); }
+  .live-item:nth-child(2) { background: rgba(61,207,178,0.3);  border: 1px solid rgba(61,207,178,0.45); min-height: 60px; }
+  .live-item:nth-child(3) { background: rgba(232,160,48,0.3);  border: 1px solid rgba(232,160,48,0.45); min-height: 40px; }
+
+  /* ---- cheatsheet ---- */
+  .cheatsheet {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 52px;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  .cheatsheet-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #e05050; }
+  .dot-amber { background: #e8a030; }
+  .dot-green { background: #3dcfb2; }
+  .cheatsheet-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: 6px;
+  }
+  .code-block {
+    padding: 24px 28px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text-mid);
+  }
+  .code-comment { color: #4a4a5a; }
+  .code-prop { color: var(--accent); }
+  .code-val  { color: var(--accent2); }
+  .code-str  { color: var(--amber); }
+
+  /* ---- footer ---- */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .footer-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="header-label">CSS 速查参考</div>
+    <h1>Flex<span>box</span> 属性手册</h1>
+    <p class="subtitle">Flexbox 属性分为两类：设在父容器上的布局指令，以及设在子元素上的自定义行为。</p>
+  </header>
+
+  <!-- Container Props -->
+  <div class="section">
+    <div class="section-title">
+      <span class="pill pill-container">父容器</span>
+      <h2>display: flex 上设置</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="grid">
+
+      <!-- flex-direction -->
+      <div class="card">
+        <div class="card-name c-accent">flex-direction</div>
+        <div class="card-desc">控制主轴方向，决定子元素的排列方式（横向或纵向）。</div>
+        <div class="card-values">
+          <span class="val default">row</span>
+          <span class="val">row-reverse</span>
+          <span class="val">column</span>
+          <span class="val">column-reverse</span>
+        </div>
+        <div class="demo" style="gap:6px; align-items:center;">
+          <div class="demo-box demo-purple" style="width:34px;height:34px;">A</div>
+          <div class="demo-box demo-purple" style="width:34px;height:34px;">B</div>
+          <div class="demo-box demo-purple" style="width:34px;height:34px;">C</div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-left:8px;">row →</span>
+        </div>
+      </div>
+
+      <!-- flex-wrap -->
+      <div class="card">
+        <div class="card-name c-accent">flex-wrap</div>
+        <div class="card-desc">子元素排不下时是否自动换行。默认不换行，内容溢出。</div>
+        <div class="card-values">
+          <span class="val default">nowrap</span>
+          <span class="val highlight">wrap</span>
+          <span class="val">wrap-reverse</span>
+        </div>
+        <div class="demo" style="flex-wrap:wrap; gap:5px; align-content:flex-start;">
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">1</div>
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">2</div>
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">3</div>
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">4</div>
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">5</div>
+          <div class="demo-box demo-teal" style="width:42px;height:28px;">6</div>
+        </div>
+      </div>
+
+      <!-- justify-content -->
+      <div class="card full">
+        <div class="card-name c-accent">justify-content</div>
+        <div class="card-desc">主轴方向（默认横向）的对齐方式，控制子元素在一行内的分布。</div>
+        <div class="card-values">
+          <span class="val default">flex-start</span>
+          <span class="val">center</span>
+          <span class="val">flex-end</span>
+          <span class="val highlight">space-between</span>
+          <span class="val">space-around</span>
+          <span class="val">space-evenly</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;">
+          <div>
+            <div class="demo" style="justify-content:flex-start;gap:5px;">
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">flex-start</div>
+          </div>
+          <div>
+            <div class="demo" style="justify-content:center;gap:5px;">
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">center</div>
+          </div>
+          <div>
+            <div class="demo" style="justify-content:space-between;gap:0;">
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+              <div class="demo-box demo-purple" style="width:26px;height:30px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">space-between</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- align-items -->
+      <div class="card full">
+        <div class="card-name c-accent">align-items</div>
+        <div class="card-desc">交叉轴方向（默认纵向）的对齐，作用于容器内所有子元素。</div>
+        <div class="card-values">
+          <span class="val default">stretch</span>
+          <span class="val">flex-start</span>
+          <span class="val">center</span>
+          <span class="val">flex-end</span>
+          <span class="val">baseline</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;">
+          <div>
+            <div class="demo" style="align-items:stretch;gap:5px;min-height:70px;">
+              <div class="demo-box demo-teal" style="width:30px;height:auto;flex:0 0 30px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:auto;flex:0 0 30px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:auto;flex:0 0 30px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">stretch</div>
+          </div>
+          <div>
+            <div class="demo" style="align-items:flex-start;gap:5px;min-height:70px;">
+              <div class="demo-box demo-teal" style="width:30px;height:48px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:22px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:34px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">flex-start</div>
+          </div>
+          <div>
+            <div class="demo" style="align-items:center;gap:5px;min-height:70px;">
+              <div class="demo-box demo-teal" style="width:30px;height:48px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:22px;"></div>
+              <div class="demo-box demo-teal" style="width:30px;height:34px;"></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px;text-align:center;">center</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- align-content -->
+      <div class="card">
+        <div class="card-name c-accent">align-content</div>
+        <div class="card-desc">多行时，行与行之间的对齐方式。需配合 <code style="font-family:var(--mono);font-size:12px;color:var(--accent2)">flex-wrap: wrap</code> 使用，单行无效。</div>
+        <div class="card-values">
+          <span class="val default">normal</span>
+          <span class="val">flex-start</span>
+          <span class="val">center</span>
+          <span class="val">space-between</span>
+        </div>
+      </div>
+
+      <!-- gap -->
+      <div class="card">
+        <div class="card-name c-accent">gap</div>
+        <div class="card-desc">子元素之间的间距，可同时设置行列，替代 margin 方案。</div>
+        <div class="card-values">
+          <span class="val">gap: 16px</span>
+          <span class="val">row-gap</span>
+          <span class="val">column-gap</span>
+        </div>
+        <div class="demo" style="gap:16px; align-items:center;">
+          <div class="demo-box demo-amber" style="width:34px;height:34px;"></div>
+          <div class="demo-box demo-amber" style="width:34px;height:34px;"></div>
+          <div class="demo-box demo-amber" style="width:34px;height:34px;"></div>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">← 16px →</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Item Props -->
+  <div class="section">
+    <div class="section-title">
+      <span class="pill pill-item">子元素</span>
+      <h2>flex item 上设置</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="grid">
+
+      <!-- flex-grow -->
+      <div class="card">
+        <div class="card-name c-teal">flex-grow</div>
+        <div class="card-desc">子元素瓜分剩余空间的比例。默认 0 不增长，设为 1 则平均分配剩余空间。</div>
+        <div class="card-values">
+          <span class="val default">0</span>
+          <span class="val highlight">1</span>
+          <span class="val">2（占比更大）</span>
+        </div>
+        <div class="demo" style="gap:6px; align-items:stretch;">
+          <div class="demo-box demo-purple" style="flex:0 0 44px;height:32px;">0</div>
+          <div class="demo-box demo-teal" style="flex:1;height:32px;">1</div>
+          <div class="demo-box demo-teal" style="flex:1;height:32px;">1</div>
+        </div>
+      </div>
+
+      <!-- flex-shrink -->
+      <div class="card">
+        <div class="card-name c-teal">flex-shrink</div>
+        <div class="card-desc">空间不足时的收缩比例。默认 1 等比收缩，设为 0 则保持原始尺寸不压缩。</div>
+        <div class="card-values">
+          <span class="val">0（不收缩）</span>
+          <span class="val default">1</span>
+          <span class="val">2（收缩更多）</span>
+        </div>
+      </div>
+
+      <!-- flex-basis -->
+      <div class="card">
+        <div class="card-name c-teal">flex-basis</div>
+        <div class="card-desc">子元素在主轴方向上的初始大小，在 grow/shrink 计算之前生效。</div>
+        <div class="card-values">
+          <span class="val default">auto</span>
+          <span class="val">200px</span>
+          <span class="val">30%</span>
+          <span class="val">content</span>
+        </div>
+      </div>
+
+      <!-- flex shorthand -->
+      <div class="card">
+        <div class="card-name c-amber">flex（简写）</div>
+        <div class="card-desc">= <code style="font-family:var(--mono);font-size:12px;color:var(--text)">flex-grow flex-shrink flex-basis</code>，推荐始终用简写代替分别写三个属性。</div>
+        <div class="card-values">
+          <span class="val highlight">flex: 1</span>
+          <span class="val">flex: auto</span>
+          <span class="val">flex: none</span>
+          <span class="val">flex: 0 0 200px</span>
+        </div>
+      </div>
+
+      <!-- align-self -->
+      <div class="card">
+        <div class="card-name c-teal">align-self</div>
+        <div class="card-desc">单独覆盖父容器的 align-items，只影响当前子元素的交叉轴对齐。</div>
+        <div class="card-values">
+          <span class="val default">auto</span>
+          <span class="val highlight">stretch</span>
+          <span class="val">flex-start</span>
+          <span class="val">center</span>
+          <span class="val">flex-end</span>
+        </div>
+        <div class="demo" style="align-items:flex-start;gap:6px;min-height:70px;">
+          <div class="demo-box demo-teal" style="width:32px;height:50px;"></div>
+          <div class="demo-box demo-amber" style="width:32px;height:20px;align-self:center;">↕</div>
+          <div class="demo-box demo-teal" style="width:32px;height:50px;"></div>
+        </div>
+      </div>
+
+      <!-- order -->
+      <div class="card">
+        <div class="card-name c-teal">order</div>
+        <div class="card-desc">控制子元素的显示顺序，数值越小越靠前。默认 0，可为负数。不改变 DOM 结构。</div>
+        <div class="card-values">
+          <span class="val default">0</span>
+          <span class="val">-1（提前）</span>
+          <span class="val">1（延后）</span>
+        </div>
+        <div class="demo" style="gap:6px; align-items:center;">
+          <div class="demo-box demo-amber" style="width:36px;height:32px;order:2;">A</div>
+          <div class="demo-box demo-purple" style="width:36px;height:32px;order:3;">B</div>
+          <div class="demo-box demo-teal" style="width:36px;height:32px;order:1;">C</div>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">C→A→B</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive Demo -->
+  <div class="interactive-demo">
+    <h3>▸ 实时演示</h3>
+    <div class="controls">
+      <div class="ctrl-group">
+        <div class="ctrl-label">flex-direction</div>
+        <div class="ctrl-btns" id="dir-btns">
+          <button class="ctrl-btn active" onclick="setDir('row')">row</button>
+          <button class="ctrl-btn" onclick="setDir('column')">column</button>
+          <button class="ctrl-btn" onclick="setDir('row-reverse')">row-reverse</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">justify-content</div>
+        <div class="ctrl-btns" id="jc-btns">
+          <button class="ctrl-btn active" onclick="setJC('flex-start')">flex-start</button>
+          <button class="ctrl-btn" onclick="setJC('center')">center</button>
+          <button class="ctrl-btn" onclick="setJC('flex-end')">flex-end</button>
+          <button class="ctrl-btn" onclick="setJC('space-between')">space-between</button>
+          <button class="ctrl-btn" onclick="setJC('space-around')">space-around</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">align-items</div>
+        <div class="ctrl-btns" id="ai-btns">
+          <button class="ctrl-btn" onclick="setAI('flex-start')">flex-start</button>
+          <button class="ctrl-btn active" onclick="setAI('center')">center</button>
+          <button class="ctrl-btn" onclick="setAI('flex-end')">flex-end</button>
+          <button class="ctrl-btn" onclick="setAI('stretch')">stretch</button>
+        </div>
+      </div>
+    </div>
+    <div class="live-box" id="live-box">
+      <div class="live-item" style="padding:10px 16px;">A</div>
+      <div class="live-item" style="padding:16px 12px;">B</div>
+      <div class="live-item" style="padding:12px 20px;">C</div>
+    </div>
+    <div style="margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);" id="code-preview">
+      flex-direction: row; justify-content: flex-start; align-items: center;
+    </div>
+  </div>
+
+  <!-- Cheatsheet -->
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-amber"></div>
+      <div class="dot dot-green"></div>
+      <div class="cheatsheet-title">常用速记模板</div>
+    </div>
+    <div class="code-block">
+      <div><span class="code-comment">/* 基础水平垂直居中 */</span></div>
+      <div><span class="code-prop">.container</span> {</div>
+      <div>&nbsp;&nbsp;<span class="code-prop">display</span>: <span class="code-val">flex</span>;</div>
+      <div>&nbsp;&nbsp;<span class="code-prop">justify-content</span>: <span class="code-val">center</span>;</div>
+      <div>&nbsp;&nbsp;<span class="code-prop">align-items</span>: <span class="code-val">center</span>;</div>
+      <div>}</div>
+      <div>&nbsp;</div>
+      <div><span class="code-comment">/* 等比撑满剩余空间 */</span></div>
+      <div><span class="code-prop">.item</span> { <span class="code-prop">flex</span>: <span class="code-val">1</span>; }</div>
+      <div>&nbsp;</div>
+      <div><span class="code-comment">/* 固定侧边栏 + 自适应主内容 */</span></div>
+      <div><span class="code-prop">.layout</span> { <span class="code-prop">display</span>: <span class="code-val">flex</span>; }</div>
+      <div><span class="code-prop">.sidebar</span> { <span class="code-prop">flex</span>: <span class="code-val">0 0 240px</span>; }</div>
+      <div><span class="code-prop">.main</span>&nbsp;&nbsp;&nbsp;{ <span class="code-prop">flex</span>: <span class="code-val">1</span>; }</div>
+      <div>&nbsp;</div>
+      <div><span class="code-comment">/* 等高卡片（stretch 默认行为）*/</span></div>
+      <div><span class="code-prop">.cards</span> { <span class="code-prop">display</span>: <span class="code-val">flex</span>; <span class="code-prop">gap</span>: <span class="code-str">16px</span>; }</div>
+      <div><span class="code-prop">.card</span>&nbsp; { <span class="code-prop">flex</span>: <span class="code-val">1</span>; } <span class="code-comment">/* align-self: stretch 为默认 */</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-text">CSS Flexbox · 布局属性速查</div>
+    <div class="footer-badge">display: flex</div>
+  </footer>
+
+</div>
+
+<script>
+  let state = { dir: 'row', jc: 'flex-start', ai: 'center' };
+
+  function setDir(v) {
+    state.dir = v;
+    update();
+    setActive('dir-btns', v);
+  }
+  function setJC(v) {
+    state.jc = v;
+    update();
+    setActive('jc-btns', v);
+  }
+  function setAI(v) {
+    state.ai = v;
+    update();
+    setActive('ai-btns', v);
+  }
+
+  function update() {
+    const box = document.getElementById('live-box');
+    box.style.flexDirection = state.dir;
+    box.style.justifyContent = state.jc;
+    box.style.alignItems = state.ai;
+    document.getElementById('code-preview').textContent =
+      `flex-direction: ${state.dir}; justify-content: ${state.jc}; align-items: ${state.ai};`;
+  }
+
+  function setActive(groupId, val) {
+    const btns = document.getElementById(groupId).querySelectorAll('.ctrl-btn');
+    btns.forEach(b => {
+      b.classList.toggle('active', b.textContent.trim() === val);
+    });
+  }
+</script>
+</body>
+</html>
